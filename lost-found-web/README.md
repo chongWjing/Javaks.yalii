@@ -121,7 +121,7 @@ lost-found-frontend/
 MySQL 连接信息:
 - 主机: localhost
 - 端口: 3306
-- 数据库: lost_found_db
+- 数据库: javaks
 - 用户名: root
 - 密码: 123456
 

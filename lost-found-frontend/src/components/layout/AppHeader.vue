@@ -68,6 +68,7 @@ const unreadCount = ref(0)
 
 const fetchUnreadCount = async () => {
   try {
+    if (!authStore.user?.id) return
     const response = await api.get(`/notifications/user/${authStore.user.id}/unread-count`)
     if (response.data.success) {
       unreadCount.value = response.data.data.count

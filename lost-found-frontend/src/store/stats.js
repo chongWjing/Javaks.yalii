@@ -6,7 +6,7 @@ export const useStatsStore = defineStore('stats', {
     overview: {},
     topLocations: [],
     monthlyTrend: [],
-    avgRecovery: { days: 0, hours: 0 },
+    avgRecovery: { averageDays: 0, averageHours: 0 },
     loading: false
   }),
 

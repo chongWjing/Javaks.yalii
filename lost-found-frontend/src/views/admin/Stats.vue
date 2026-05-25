@@ -50,9 +50,9 @@
       <div class="chart-card recovery-card">
         <h3>平均找回时长</h3>
         <div class="recovery-content">
-          <div class="recovery-number">{{ avgRecovery.days || 0 }}</div>
+          <div class="recovery-number">{{ avgRecovery.averageDays || 0 }}</div>
           <div class="recovery-unit">天</div>
-          <div class="recovery-detail">约 {{ avgRecovery.hours || 0 }} 小时</div>
+          <div class="recovery-detail">约 {{ avgRecovery.averageHours || 0 }} 小时</div>
         </div>
       </div>
     </div>
