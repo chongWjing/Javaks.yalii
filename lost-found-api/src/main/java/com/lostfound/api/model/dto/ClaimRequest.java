@@ -7,6 +7,8 @@ public class ClaimRequest {
     private Integer itemId;
 
     private String claimReason;
+    private String contactInfo;
+    private String evidenceUrls;
 
     public ClaimRequest() {}
 
@@ -15,4 +17,10 @@ public class ClaimRequest {
 
     public String getClaimReason() { return claimReason; }
     public void setClaimReason(String claimReason) { this.claimReason = claimReason; }
+
+    public String getContactInfo() { return contactInfo; }
+    public void setContactInfo(String contactInfo) { this.contactInfo = contactInfo; }
+
+    public String getEvidenceUrls() { return evidenceUrls; }
+    public void setEvidenceUrls(String evidenceUrls) { this.evidenceUrls = evidenceUrls; }
 }

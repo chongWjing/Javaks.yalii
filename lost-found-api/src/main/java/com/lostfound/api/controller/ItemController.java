@@ -6,10 +6,12 @@ import com.lostfound.api.model.entity.Item;
 import com.lostfound.api.service.ItemService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,8 +32,10 @@ public class ItemController {
             @RequestParam(required = false) String type,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String keyword,
-            @RequestParam(required = false) String category) {
-        List<Item> items = itemService.getAllItems(type, status, keyword, category);
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startTime,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endTime) {
+        List<Item> items = itemService.getAllItems(type, status, keyword, category, startTime, endTime);
         return ResponseEntity.ok(ApiResponse.success(items));
     }
 
@@ -41,9 +45,11 @@ public class ItemController {
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) String category,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startTime,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endTime,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        Page<Item> itemPage = itemService.getAllItemsPaged(type, status, keyword, category, page, size);
+        Page<Item> itemPage = itemService.getAllItemsPaged(type, status, keyword, category, startTime, endTime, page, size);
         Map<String, Object> result = new HashMap<>();
         result.put("content", itemPage.getContent());
         result.put("totalElements", itemPage.getTotalElements());
@@ -96,5 +102,25 @@ public class ItemController {
             Authentication authentication) {
         Item item = itemService.updateItemStatus(id, status, authentication.getName());
         return ResponseEntity.ok(ApiResponse.success(item, "状态更新成功"));
+    }
+
+    @GetMapping("/stats/top-locations")
+    public ResponseEntity<ApiResponse<List<Object[]>>> getTopLocations(
+            @RequestParam(defaultValue = "10") int limit) {
+        return ResponseEntity.ok(ApiResponse.success(itemService.getTopLocations(limit)));
+    }
+
+    @GetMapping("/stats/monthly-trend")
+    public ResponseEntity<ApiResponse<List<Object[]>>> getMonthlyTrend() {
+        return ResponseEntity.ok(ApiResponse.success(itemService.getMonthlyTrend()));
+    }
+
+    @GetMapping("/stats/avg-recovery")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getAverageRecovery() {
+        Double hours = itemService.getAverageRecoveryHours();
+        Map<String, Object> result = new HashMap<>();
+        result.put("averageHours", hours != null ? Math.round(hours * 10) / 10.0 : 0);
+        result.put("averageDays", hours != null ? Math.round(hours / 24 * 10) / 10.0 : 0);
+        return ResponseEntity.ok(ApiResponse.success(result));
     }
 }

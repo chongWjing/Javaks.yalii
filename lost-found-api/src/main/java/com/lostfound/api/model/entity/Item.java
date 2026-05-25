@@ -2,7 +2,10 @@ package com.lostfound.api.model.entity;
 
 import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.lostfound.api.model.converter.StringListConverter;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "items")
@@ -52,10 +55,15 @@ public class Item {
     @Column(name = "status_description", length = 200)
     private String statusDescription;
 
+    @Convert(converter = StringListConverter.class)
+    @Column(name = "image_urls", columnDefinition = "TEXT")
+    private List<String> imageUrls;
+
     public Item() {
         this.status = "ACTIVE";
         this.time = LocalDateTime.now();
         this.reward = 0.0;
+        this.imageUrls = new ArrayList<>();
     }
 
     // Getters and Setters
@@ -100,4 +108,7 @@ public class Item {
 
     public String getStatusDescription() { return statusDescription; }
     public void setStatusDescription(String statusDescription) { this.statusDescription = statusDescription; }
+
+    public List<String> getImageUrls() { return imageUrls; }
+    public void setImageUrls(List<String> imageUrls) { this.imageUrls = imageUrls; }
 }

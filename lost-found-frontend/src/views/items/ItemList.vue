@@ -23,6 +23,16 @@
           <el-option label="衣物饰品" value="衣物" />
           <el-option label="其他" value="其他" />
         </el-select>
+        <el-date-picker
+          v-model="filters.dateRange"
+          type="daterange"
+          range-separator="至"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          size="large"
+          value-format="YYYY-MM-DDTHH:mm:ss"
+          :shortcuts="dateShortcuts"
+        />
         <el-input v-model="filters.keyword" placeholder="搜索关键词..." clearable size="large" class="search-input" />
         <el-button type="primary" size="large" @click="handleSearch" class="search-btn">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -33,6 +43,17 @@
 
     <div class="items-grid" v-loading="loading">
       <div v-for="(item, index) in items" :key="item.id" class="item-card" @click="$router.push(`/items/${item.id}`)" :style="{ animationDelay: `${index * 0.05}s` }">
+        <div class="item-image">
+          <img v-if="item.imageUrls && item.imageUrls.length" :src="item.imageUrls[0]" alt="物品图片" />
+          <div v-else class="image-placeholder">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="28" height="28">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+              <circle cx="9" cy="9" r="2"/>
+              <path d="M21 15l-4-4-3 3-5-5-6 6"/>
+            </svg>
+            <span>暂无图片</span>
+          </div>
+        </div>
         <div class="card-top">
           <div class="item-type" :class="item.itemType === 'LOST' ? 'lost' : 'found'">
             {{ item.itemType === 'LOST' ? '失物' : '招领' }}
@@ -98,7 +119,13 @@ const totalPages = ref(0)
 
 const statusMap = { ACTIVE: '进行中', CLAIMED: '已认领', CLOSED: '已关闭' }
 
-const filters = ref({ type: null, status: null, category: null, keyword: '' })
+const dateShortcuts = [
+  { text: '最近一周', value: () => { const end = new Date(); const start = new Date(); start.setDate(start.getDate() - 7); return [start, end] } },
+  { text: '最近一个月', value: () => { const end = new Date(); const start = new Date(); start.setMonth(start.getMonth() - 1); return [start, end] } },
+  { text: '最近三个月', value: () => { const end = new Date(); const start = new Date(); start.setMonth(start.getMonth() - 3); return [start, end] } }
+]
+
+const filters = ref({ type: null, status: null, category: null, keyword: '', dateRange: null })
 
 const fetchItems = async () => {
   loading.value = true
@@ -108,6 +135,8 @@ const fetchItems = async () => {
     if (filters.value.status) params.append('status', filters.value.status)
     if (filters.value.category) params.append('category', filters.value.category)
     if (filters.value.keyword) params.append('keyword', filters.value.keyword)
+    if (filters.value.dateRange && filters.value.dateRange[0]) params.append('startTime', filters.value.dateRange[0])
+    if (filters.value.dateRange && filters.value.dateRange[1]) params.append('endTime', filters.value.dateRange[1])
     params.append('page', currentPage.value - 1)
     params.append('size', pageSize.value)
 
@@ -191,6 +220,31 @@ onMounted(() => { fetchItems() })
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   box-shadow: 0 4px 15px rgba(0,0,0,0.03);
   animation: fadeInUp 0.4s var(--ease) both;
+}
+.item-image {
+  width: 100%;
+  height: 180px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: 16px;
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+}
+.item-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.image-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: var(--gray-400);
+  font-size: 12px;
 }
 .item-card:hover {
   transform: translateY(-6px);

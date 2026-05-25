@@ -3,6 +3,7 @@ package com.lostfound.api.controller;
 import com.lostfound.api.model.dto.ApiResponse;
 import com.lostfound.api.repository.ClaimRecordRepository;
 import com.lostfound.api.repository.ItemRepository;
+import com.lostfound.api.repository.ReportRepository;
 import com.lostfound.api.repository.UserRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,13 +19,16 @@ public class StatsController {
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
     private final ClaimRecordRepository claimRecordRepository;
+    private final ReportRepository reportRepository;
 
     public StatsController(UserRepository userRepository,
                           ItemRepository itemRepository,
-                          ClaimRecordRepository claimRecordRepository) {
+                          ClaimRecordRepository claimRecordRepository,
+                          ReportRepository reportRepository) {
         this.userRepository = userRepository;
         this.itemRepository = itemRepository;
         this.claimRecordRepository = claimRecordRepository;
+        this.reportRepository = reportRepository;
     }
 
     @GetMapping
@@ -38,6 +42,7 @@ public class StatsController {
         stats.put("lostItems", itemRepository.countByItemType("LOST"));
         stats.put("foundItems", itemRepository.countByItemType("FOUND"));
         stats.put("activeItems", itemRepository.countByStatus("ACTIVE"));
+        stats.put("pendingReports", reportRepository.countByStatus("PENDING"));
         return ResponseEntity.ok(ApiResponse.success(stats));
     }
 }

@@ -46,6 +46,15 @@ export const useItemStore = defineStore('items', {
       return response.data
     },
 
+    async uploadImages(files) {
+      const formData = new FormData()
+      files.forEach(file => formData.append('files', file))
+      const response = await api.post('/uploads/images', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      })
+      return response.data
+    },
+
     async deleteItem(id) {
       const response = await api.delete(`/items/${id}`)
       return response.data

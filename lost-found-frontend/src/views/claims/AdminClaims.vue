@@ -60,7 +60,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import api from '../../services/api'
 
 const claims = ref([])
@@ -90,10 +90,20 @@ const approveClaim = async (id) => {
 
 const rejectClaim = async (id) => {
   try {
-    await api.put(`/claims/${id}/reject`)
+    const { value } = await ElMessageBox.prompt('请输入拒绝原因（可选）', '拒绝认领', {
+      confirmButtonText: '确定拒绝',
+      cancelButtonText: '取消',
+      inputType: 'textarea',
+      inputPlaceholder: '请输入拒绝原因...'
+    })
+    await api.put(`/claims/${id}/reject`, { rejectReason: value || '' })
     ElMessage.success('已拒绝')
     fetchClaims()
-  } catch (error) { ElMessage.error('操作失败') }
+  } catch (error) {
+    if (error !== 'cancel' && error?.message !== 'cancel') {
+      ElMessage.error('操作失败')
+    }
+  }
 }
 
 onMounted(() => { fetchClaims() })

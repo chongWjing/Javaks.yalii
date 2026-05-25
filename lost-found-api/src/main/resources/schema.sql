@@ -33,6 +33,7 @@ CREATE TABLE IF NOT EXISTS items (
     reward DOUBLE DEFAULT 0,
     found_time VARCHAR(100),
     status_description VARCHAR(200),
+    image_urls TEXT,
     FOREIGN KEY (publisher_id) REFERENCES users(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -47,6 +48,10 @@ CREATE TABLE IF NOT EXISTS claim_records (
     status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
     claim_time DATETIME,
     process_time DATETIME,
+    contact_info VARCHAR(200),
+    evidence_urls TEXT,
+    review_note TEXT,
+    reject_reason VARCHAR(500),
     FOREIGN KEY (item_id) REFERENCES items(id) ON DELETE SET NULL,
     FOREIGN KEY (claimer_id) REFERENCES users(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -63,7 +68,31 @@ CREATE TABLE IF NOT EXISTS notifications (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- 插入默认管理员账户 (密码: admin123, BCrypt加密)
-INSERT INTO users (username, password, phone, email, role, create_time, post_count, manage_count)
-VALUES ('admin', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH', '13800138000', 'admin@lostfound.com', 'ADMIN', NOW(), 0, 0)
-ON DUPLICATE KEY UPDATE id=id;
+-- 举报表
+CREATE TABLE IF NOT EXISTS reports (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    item_id INT,
+    reporter_id INT,
+    report_type VARCHAR(50) NOT NULL,
+    reason TEXT NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
+    admin_note TEXT,
+    create_time DATETIME,
+    process_time DATETIME,
+    FOREIGN KEY (item_id) REFERENCES items(id) ON DELETE CASCADE,
+    FOREIGN KEY (reporter_id) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 数据库索引
+CREATE INDEX idx_items_item_type ON items(item_type);
+CREATE INDEX idx_items_status ON items(status);
+CREATE INDEX idx_items_category ON items(category);
+CREATE INDEX idx_items_time ON items(time);
+CREATE INDEX idx_items_publisher_id ON items(publisher_id);
+CREATE INDEX idx_claims_status ON claim_records(status);
+CREATE INDEX idx_claims_claimer_id ON claim_records(claimer_id);
+CREATE INDEX idx_claims_item_id ON claim_records(item_id);
+CREATE INDEX idx_notifications_user_id ON notifications(user_id);
+CREATE INDEX idx_notifications_is_read ON notifications(is_read);
+CREATE INDEX idx_reports_status ON reports(status);
+CREATE INDEX idx_reports_item_id ON reports(item_id);

@@ -48,6 +48,26 @@
           </el-select>
         </el-form-item>
 
+        <el-form-item>
+          <el-upload
+            v-model:file-list="uploadFiles"
+            list-type="picture-card"
+            :auto-upload="false"
+            :limit="6"
+            accept="image/*"
+            :before-upload="beforeUpload"
+            @exceed="handleExceed"
+          >
+            <div class="upload-card">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+              <span>上传图片</span>
+            </div>
+          </el-upload>
+          <div class="upload-hint">最多 6 张，单张不超过 5MB</div>
+        </el-form-item>
+
         <div v-if="form.itemType === 'LOST'" class="type-fields">
           <el-form-item prop="lostTime">
             <el-input v-model="form.lostTime" placeholder="丢失时间" />
@@ -92,10 +112,11 @@ const router = useRouter()
 const itemStore = useItemStore()
 const formRef = ref(null)
 const loading = ref(false)
+const uploadFiles = ref([])
 
 const form = ref({
   itemType: 'LOST', name: '', description: '', location: '', category: '',
-  lostTime: '', reward: 0, foundTime: '', statusDescription: ''
+  lostTime: '', reward: 0, foundTime: '', statusDescription: '', imageUrls: []
 })
 
 const rules = {
@@ -104,17 +125,46 @@ const rules = {
   location: [{ required: true, message: '请输入位置信息', trigger: 'blur' }]
 }
 
+const beforeUpload = (file) => {
+  if (!file.type.startsWith('image/')) {
+    ElMessage.error('仅支持图片格式')
+    return false
+  }
+  const isLt5M = file.size / 1024 / 1024 < 5
+  if (!isLt5M) {
+    ElMessage.error('图片大小不能超过 5MB')
+    return false
+  }
+  return true
+}
+
+const handleExceed = () => {
+  ElMessage.warning('最多上传 6 张图片')
+}
+
+const uploadImages = async () => {
+  const files = uploadFiles.value.map(file => file.raw).filter(Boolean)
+  if (files.length === 0) return []
+  const response = await itemStore.uploadImages(files)
+  if (!response.success) {
+    throw new Error(response.message || '图片上传失败')
+  }
+  return response.data
+}
+
 const handleSubmit = async () => {
   try {
     await formRef.value.validate()
     loading.value = true
-    const response = await itemStore.createItem(form.value)
+    const imageUrls = await uploadImages()
+    const payload = { ...form.value, imageUrls }
+    const response = await itemStore.createItem(payload)
     if (response.success) {
       ElMessage.success('发布成功')
       router.push('/items')
     }
   } catch (error) {
-    ElMessage.error(error.response?.data?.message || '发布失败')
+    ElMessage.error(error.response?.data?.message || error.message || '发布失败')
   } finally { loading.value = false }
 }
 </script>
@@ -167,6 +217,17 @@ const handleSubmit = async () => {
 }
 .reward-label { font-size: 14px; color: var(--gray-700); font-weight: 600; white-space: nowrap; }
 .reward-unit { font-size: 14px; color: var(--gray-500); }
+
+.upload-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: var(--gray-500);
+  font-size: 12px;
+}
+.upload-hint { font-size: 12px; color: var(--gray-500); margin-top: 6px; }
 
 .form-actions {
   display: flex; justify-content: flex-end; gap: 16px; margin-top: 16px;

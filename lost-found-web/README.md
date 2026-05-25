@@ -98,6 +98,9 @@ lost-found-frontend/
 - `GET /api/notifications/user/:userId` - 获取通知
 - `PUT /api/notifications/:id/read` - 标记已读
 
+### 上传
+- `POST /api/uploads/images` - 上传物品图片
+
 ## 技术栈
 
 **后端:**
@@ -132,6 +135,7 @@ MySQL 连接信息:
 - [x] 认领物品
 - [x] 管理员认领审批
 - [x] 通知消息管理
+- [x] 物品图片上传
 - [x] 响应式界面设计
 - [x] 权限控制（普通用户/管理员）
 
@@ -164,7 +168,6 @@ MySQL 连接信息:
 ## 下一步改进
 
 - [ ] 添加数据库迁移脚本
-- [ ] 实现图片上传功能
 - [ ] 添加搜索和分页优化
 - [ ] 实现邮件通知
 - [ ] 添加单元测试

@@ -12,6 +12,8 @@ import MyClaims from '../views/claims/MyClaims.vue'
 import AdminClaims from '../views/claims/AdminClaims.vue'
 import NotificationList from '../views/notifications/NotificationList.vue'
 import UserManage from '../views/admin/UserManage.vue'
+import Reports from '../views/admin/Reports.vue'
+import Stats from '../views/admin/Stats.vue'
 
 const routes = [
   { path: '/login', name: 'Login', component: Login, meta: { guest: true } },
@@ -24,6 +26,8 @@ const routes = [
   { path: '/my-claims', name: 'MyClaims', component: MyClaims, meta: { requiresAuth: true } },
   { path: '/admin/claims', name: 'AdminClaims', component: AdminClaims, meta: { requiresAuth: true, requiresAdmin: true } },
   { path: '/admin/users', name: 'UserManage', component: UserManage, meta: { requiresAuth: true, requiresAdmin: true } },
+  { path: '/admin/reports', name: 'Reports', component: Reports, meta: { requiresAuth: true, requiresAdmin: true } },
+  { path: '/admin/stats', name: 'Stats', component: Stats, meta: { requiresAuth: true, requiresAdmin: true } },
   { path: '/notifications', name: 'Notifications', component: NotificationList, meta: { requiresAuth: true } }
 ]
 

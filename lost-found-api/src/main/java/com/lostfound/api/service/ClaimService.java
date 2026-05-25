@@ -49,6 +49,8 @@ public class ClaimService {
         claim.setClaimer(claimer);
         claim.setClaimerName(claimer.getUsername());
         claim.setClaimReason(request.getClaimReason());
+        claim.setContactInfo(request.getContactInfo());
+        claim.setEvidenceUrls(request.getEvidenceUrls());
         claim.setStatus("PENDING");
         claim.setClaimTime(LocalDateTime.now());
 
@@ -115,7 +117,7 @@ public class ClaimService {
     }
 
     @Transactional
-    public ClaimRecord rejectClaim(Integer id, String username) {
+    public ClaimRecord rejectClaim(Integer id, String username, String rejectReason) {
         ClaimRecord claim = getClaimById(id);
         User operator = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("用户不存在"));
@@ -127,13 +129,19 @@ public class ClaimService {
 
         claim.setStatus("REJECTED");
         claim.setProcessTime(LocalDateTime.now());
+        claim.setRejectReason(rejectReason);
 
         ClaimRecord saved = claimRecordRepository.save(claim);
+
+        String notifContent = "您对物品「" + item.getName() + "」的认领申请已被拒绝";
+        if (rejectReason != null && !rejectReason.isEmpty()) {
+            notifContent += "，原因：" + rejectReason;
+        }
 
         notificationService.createNotification(
                 claim.getClaimer().getId(),
                 "认领申请已拒绝",
-                "您对物品「" + item.getName() + "」的认领申请已被拒绝",
+                notifContent,
                 "CLAIM"
         );
 

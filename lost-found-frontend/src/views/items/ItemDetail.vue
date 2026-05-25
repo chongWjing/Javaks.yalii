@@ -25,6 +25,22 @@
         </div>
       </div>
 
+      <div v-if="imageUrls.length" class="image-gallery">
+        <div class="main-image">
+          <img :src="activeImage" alt="物品图片" />
+        </div>
+        <div class="thumbs">
+          <img
+            v-for="url in imageUrls"
+            :key="url"
+            :src="url"
+            :class="{ active: url === activeImage }"
+            @click="activeImage = url"
+            alt="物品图片预览"
+          />
+        </div>
+      </div>
+
       <div class="detail-body">
         <div class="info-section" v-if="item.itemType === 'LOST'">
           <h3>失物信息</h3>
@@ -84,6 +100,9 @@
         <el-button v-if="isOwner || isAdmin" type="danger" size="large" @click="handleDelete" class="delete-btn-detail">
           删除
         </el-button>
+        <el-button v-if="!isOwner" size="large" @click="showReportDialog = true" class="report-btn">
+          举报
+        </el-button>
         <el-button size="large" @click="$router.back()">返回列表</el-button>
       </div>
     </div>
@@ -93,10 +112,33 @@
         <el-form-item label="认领理由" prop="claimReason">
           <el-input v-model="claimForm.claimReason" type="textarea" :rows="4" placeholder="请描述你为什么认为这是你的物品" />
         </el-form-item>
+        <el-form-item label="联系方式">
+          <el-input v-model="claimForm.contactInfo" placeholder="手机号/微信号/邮箱" />
+        </el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="showClaimDialog = false">取消</el-button>
         <el-button type="primary" @click="submitClaim" :loading="claiming">提交认领</el-button>
+      </template>
+    </el-dialog>
+
+    <el-dialog v-model="showReportDialog" title="举报物品" width="500px" :close-on-click-modal="false">
+      <el-form :model="reportForm" ref="reportFormRef">
+        <el-form-item label="举报类型" required>
+          <el-select v-model="reportForm.reportType" placeholder="请选择举报类型" style="width: 100%">
+            <el-option label="虚假信息" value="FAKE" />
+            <el-option label="重复发布" value="DUPLICATE" />
+            <el-option label="不当内容" value="INAPPROPRIATE" />
+            <el-option label="其他" value="OTHER" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="举报原因" required>
+          <el-input v-model="reportForm.reason" type="textarea" :rows="4" placeholder="请描述举报原因" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="showReportDialog = false">取消</el-button>
+        <el-button type="warning" @click="submitReport" :loading="reporting">提交举报</el-button>
       </template>
     </el-dialog>
   </div>
@@ -119,11 +161,17 @@ const loading = ref(false)
 const showClaimDialog = ref(false)
 const claiming = ref(false)
 const claimFormRef = ref(null)
-const claimForm = ref({ claimReason: '' })
+const claimForm = ref({ claimReason: '', contactInfo: '' })
 const claimRules = { claimReason: [{ required: true, message: '请填写认领理由', trigger: 'blur' }] }
+const showReportDialog = ref(false)
+const reporting = ref(false)
+const reportFormRef = ref(null)
+const reportForm = ref({ reportType: '', reason: '' })
 const statusMap = { ACTIVE: '进行中', CLAIMED: '已认领', CLOSED: '已关闭' }
 const isOwner = computed(() => item.value?.publisherName === authStore.user?.username)
 const isAdmin = computed(() => authStore.user?.role === 'ADMIN')
+const imageUrls = computed(() => item.value?.imageUrls || [])
+const activeImage = ref('')
 const formatDate = (dateStr) => dateStr ? new Date(dateStr).toLocaleString('zh-CN') : '未知'
 
 const fetchItem = async () => {
@@ -131,6 +179,7 @@ const fetchItem = async () => {
   try {
     await itemStore.fetchItem(route.params.id)
     item.value = itemStore.currentItem
+    activeImage.value = item.value?.imageUrls?.[0] || ''
   } finally { loading.value = false }
 }
 
@@ -157,7 +206,11 @@ const submitClaim = async () => {
   try {
     await claimFormRef.value.validate()
     claiming.value = true
-    const response = await api.post('/claims', { itemId: item.value.id, claimReason: claimForm.value.claimReason })
+    const response = await api.post('/claims', {
+      itemId: item.value.id,
+      claimReason: claimForm.value.claimReason,
+      contactInfo: claimForm.value.contactInfo
+    })
     if (response.data.success) {
       ElMessage.success('认领申请已提交')
       showClaimDialog.value = false
@@ -166,6 +219,28 @@ const submitClaim = async () => {
   } catch (error) {
     ElMessage.error(error.response?.data?.message || '提交失败')
   } finally { claiming.value = false }
+}
+
+const submitReport = async () => {
+  if (!reportForm.value.reportType || !reportForm.value.reason) {
+    ElMessage.warning('请填写完整的举报信息')
+    return
+  }
+  reporting.value = true
+  try {
+    const response = await api.post('/reports', {
+      itemId: item.value.id,
+      reportType: reportForm.value.reportType,
+      reason: reportForm.value.reason
+    })
+    if (response.data.success) {
+      ElMessage.success('举报已提交')
+      showReportDialog.value = false
+      reportForm.value = { reportType: '', reason: '' }
+    }
+  } catch (error) {
+    ElMessage.error(error.response?.data?.message || '举报失败')
+  } finally { reporting.value = false }
 }
 
 onMounted(() => { fetchItem() })
@@ -208,6 +283,41 @@ onMounted(() => { fetchItem() })
 .meta-chip:hover { transform: translateY(-2px); }
 
 .detail-body { padding: 32px; }
+.image-gallery {
+  padding: 0 32px 24px;
+}
+.main-image {
+  width: 100%;
+  height: 320px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+}
+.main-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.thumbs {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+.thumbs img {
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: 10px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.2s ease;
+}
+.thumbs img.active {
+  border-color: var(--primary);
+  transform: translateY(-2px);
+}
 .info-section { margin-bottom: 32px; }
 .info-section:last-child { margin-bottom: 0; }
 .info-section h3 {
@@ -260,6 +370,11 @@ onMounted(() => { fetchItem() })
   border-radius: var(--radius-lg) !important;
 }
 .delete-btn-detail {
+  display: flex !important; align-items: center; gap: 8px;
+  height: 52px !important; padding: 0 32px !important; font-size: 16px !important;
+  border-radius: var(--radius-lg) !important;
+}
+.report-btn {
   display: flex !important; align-items: center; gap: 8px;
   height: 52px !important; padding: 0 32px !important; font-size: 16px !important;
   border-radius: var(--radius-lg) !important;

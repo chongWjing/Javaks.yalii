@@ -4,21 +4,27 @@ import com.lostfound.api.model.entity.Notification;
 import com.lostfound.api.model.entity.User;
 import com.lostfound.api.repository.NotificationRepository;
 import com.lostfound.api.repository.UserRepository;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
+    private final SimpMessagingTemplate messagingTemplate;
 
     public NotificationService(NotificationRepository notificationRepository,
-                               UserRepository userRepository) {
+                               UserRepository userRepository,
+                               SimpMessagingTemplate messagingTemplate) {
         this.notificationRepository = notificationRepository;
         this.userRepository = userRepository;
+        this.messagingTemplate = messagingTemplate;
     }
 
     public Notification createNotification(Integer userId, String title, String content, String type) {
@@ -33,7 +39,21 @@ public class NotificationService {
         notification.setRead(false);
         notification.setCreateTime(LocalDateTime.now());
 
-        return notificationRepository.save(notification);
+        Notification saved = notificationRepository.save(notification);
+
+        // WebSocket 实时推送
+        Map<String, Object> wsMessage = new HashMap<>();
+        wsMessage.put("id", saved.getId());
+        wsMessage.put("title", title);
+        wsMessage.put("content", content);
+        wsMessage.put("type", type);
+        wsMessage.put("createTime", saved.getCreateTime());
+        wsMessage.put("unreadCount", notificationRepository.countByUserIdAndIsReadFalse(userId));
+
+        messagingTemplate.convertAndSendToUser(
+                userId.toString(), "/notifications", wsMessage);
+
+        return saved;
     }
 
     public List<Notification> getUserNotifications(Integer userId) {

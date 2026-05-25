@@ -1,6 +1,7 @@
 package com.lostfound.api.model.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import java.util.List;
 
 public class ItemRequest {
     @NotBlank(message = "物品名称不能为空")
@@ -18,6 +19,8 @@ public class ItemRequest {
     // For found items
     private String foundTime;
     private String statusDescription;
+
+    private List<String> imageUrls;
 
     public ItemRequest() {}
 
@@ -47,4 +50,7 @@ public class ItemRequest {
 
     public String getStatusDescription() { return statusDescription; }
     public void setStatusDescription(String statusDescription) { this.statusDescription = statusDescription; }
+
+    public List<String> getImageUrls() { return imageUrls; }
+    public void setImageUrls(List<String> imageUrls) { this.imageUrls = imageUrls; }
 }

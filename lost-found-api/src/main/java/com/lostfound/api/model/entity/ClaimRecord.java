@@ -39,6 +39,18 @@ public class ClaimRecord {
     @Column(name = "process_time")
     private LocalDateTime processTime;
 
+    @Column(name = "contact_info", length = 200)
+    private String contactInfo;
+
+    @Column(name = "evidence_urls", columnDefinition = "TEXT")
+    private String evidenceUrls;
+
+    @Column(name = "review_note", columnDefinition = "TEXT")
+    private String reviewNote;
+
+    @Column(name = "reject_reason", length = 500)
+    private String rejectReason;
+
     public ClaimRecord() {
         this.status = "PENDING";
         this.claimTime = LocalDateTime.now();
@@ -71,4 +83,16 @@ public class ClaimRecord {
 
     public LocalDateTime getProcessTime() { return processTime; }
     public void setProcessTime(LocalDateTime processTime) { this.processTime = processTime; }
+
+    public String getContactInfo() { return contactInfo; }
+    public void setContactInfo(String contactInfo) { this.contactInfo = contactInfo; }
+
+    public String getEvidenceUrls() { return evidenceUrls; }
+    public void setEvidenceUrls(String evidenceUrls) { this.evidenceUrls = evidenceUrls; }
+
+    public String getReviewNote() { return reviewNote; }
+    public void setReviewNote(String reviewNote) { this.reviewNote = reviewNote; }
+
+    public String getRejectReason() { return rejectReason; }
+    public void setRejectReason(String rejectReason) { this.rejectReason = rejectReason; }
 }

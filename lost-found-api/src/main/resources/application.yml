@@ -21,11 +21,18 @@ spring:
   jackson:
     serialization:
       write-dates-as-timestamps: false
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 20MB
 
 # JWT Configuration
 jwt:
   secret: LostFoundSecretKeyForJWTTokenGeneration2024VeryLongAndSecureKey
   expiration: 86400000  # 24 hours in milliseconds
+
+app:
+  upload-dir: ${user.dir}/uploads
 
 # Server Configuration
 server:

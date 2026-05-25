@@ -3,8 +3,10 @@
 *.jar
 *.war
 target/
+out/
 .idea/
 *.iml
+lost-found-api/uploads/
 
 # Node
 node_modules/

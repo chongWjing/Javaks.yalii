@@ -42,6 +42,9 @@ public class ItemService {
         item.setPublisherName(publisher.getUsername());
         item.setStatus("ACTIVE");
         item.setTime(LocalDateTime.now());
+        if (request.getImageUrls() != null) {
+            item.setImageUrls(request.getImageUrls());
+        }
 
         if ("LOST".equals(request.getItemType())) {
             item.setLostTime(request.getLostTime());
@@ -55,14 +58,31 @@ public class ItemService {
     }
 
     @Transactional(readOnly = true)
-    public List<Item> getAllItems(String type, String status, String keyword, String category) {
-        return itemRepository.findByFilters(type, status, keyword, category);
+    public List<Item> getAllItems(String type, String status, String keyword, String category,
+                                  LocalDateTime startTime, LocalDateTime endTime) {
+        return itemRepository.findByFilters(type, status, keyword, category, startTime, endTime);
     }
 
     @Transactional(readOnly = true)
-    public Page<Item> getAllItemsPaged(String type, String status, String keyword, String category, int page, int size) {
-        return itemRepository.findByFiltersPaged(type, status, keyword, category,
+    public Page<Item> getAllItemsPaged(String type, String status, String keyword, String category,
+                                       LocalDateTime startTime, LocalDateTime endTime, int page, int size) {
+        return itemRepository.findByFiltersPaged(type, status, keyword, category, startTime, endTime,
                 PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "time")));
+    }
+
+    @Transactional(readOnly = true)
+    public List<Object[]> getTopLocations(int limit) {
+        return itemRepository.findTopLocations(org.springframework.data.domain.PageRequest.of(0, limit));
+    }
+
+    @Transactional(readOnly = true)
+    public List<Object[]> getMonthlyTrend() {
+        return itemRepository.findMonthlyTrend();
+    }
+
+    @Transactional(readOnly = true)
+    public Double getAverageRecoveryHours() {
+        return itemRepository.findAverageRecoveryHours();
     }
 
     @Transactional(readOnly = true)
@@ -89,6 +109,7 @@ public class ItemService {
         if (request.getDescription() != null) item.setDescription(request.getDescription());
         if (request.getCategory() != null) item.setCategory(request.getCategory());
         if (request.getLocation() != null) item.setLocation(request.getLocation());
+        if (request.getImageUrls() != null) item.setImageUrls(request.getImageUrls());
 
         return itemRepository.save(item);
     }

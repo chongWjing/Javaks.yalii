@@ -10,6 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/claims")
@@ -65,8 +66,10 @@ public class ClaimController {
     @PutMapping("/{id}/reject")
     public ResponseEntity<ApiResponse<ClaimRecord>> rejectClaim(
             @PathVariable Integer id,
+            @RequestBody(required = false) Map<String, String> body,
             Authentication authentication) {
-        ClaimRecord claim = claimService.rejectClaim(id, authentication.getName());
+        String reason = body != null ? body.get("rejectReason") : null;
+        ClaimRecord claim = claimService.rejectClaim(id, authentication.getName(), reason);
         return ResponseEntity.ok(ApiResponse.success(claim, "认领已拒绝"));
     }
 

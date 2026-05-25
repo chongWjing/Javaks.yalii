@@ -56,8 +56,8 @@ export const useClaimStore = defineStore('claims', {
       return response.data
     },
 
-    async rejectClaim(id) {
-      const response = await api.put(`/claims/${id}/reject`)
+    async rejectClaim(id, rejectReason = null) {
+      const response = await api.put(`/claims/${id}/reject`, { rejectReason })
       return response.data
     },
 

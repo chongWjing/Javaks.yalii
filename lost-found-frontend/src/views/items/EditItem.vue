@@ -27,6 +27,32 @@
           </el-select>
         </el-form-item>
 
+        <div class="image-section">
+          <div v-if="form.imageUrls.length" class="existing-images">
+            <div v-for="(url, index) in form.imageUrls" :key="url" class="image-item">
+              <img :src="url" alt="物品图片" />
+              <el-button type="danger" size="small" plain @click="removeImage(index)">移除</el-button>
+            </div>
+          </div>
+          <el-upload
+            v-model:file-list="uploadFiles"
+            list-type="picture-card"
+            :auto-upload="false"
+            :limit="6"
+            accept="image/*"
+            :before-upload="beforeUpload"
+            @exceed="handleExceed"
+          >
+            <div class="upload-card">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+              <span>追加图片</span>
+            </div>
+          </el-upload>
+          <div class="upload-hint">最多 6 张，单张不超过 5MB</div>
+        </div>
+
         <div v-if="form.itemType === 'LOST'" class="type-fields">
           <el-form-item>
             <el-input v-model="form.lostTime" placeholder="丢失时间" />
@@ -72,10 +98,11 @@ const itemStore = useItemStore()
 const formRef = ref(null)
 const loading = ref(false)
 const submitting = ref(false)
+const uploadFiles = ref([])
 
 const form = ref({
   name: '', description: '', location: '', category: '',
-  itemType: '', lostTime: '', reward: 0, foundTime: '', statusDescription: ''
+  itemType: '', lostTime: '', reward: 0, foundTime: '', statusDescription: '', imageUrls: []
 })
 
 const rules = {
@@ -98,7 +125,8 @@ const fetchItem = async () => {
         lostTime: item.lostTime || '',
         reward: item.reward || 0,
         foundTime: item.foundTime || '',
-        statusDescription: item.statusDescription || ''
+        statusDescription: item.statusDescription || '',
+        imageUrls: Array.isArray(item.imageUrls) ? item.imageUrls : []
       }
     }
   } finally {
@@ -106,17 +134,50 @@ const fetchItem = async () => {
   }
 }
 
+const beforeUpload = (file) => {
+  if (!file.type.startsWith('image/')) {
+    ElMessage.error('仅支持图片格式')
+    return false
+  }
+  const isLt5M = file.size / 1024 / 1024 < 5
+  if (!isLt5M) {
+    ElMessage.error('图片大小不能超过 5MB')
+    return false
+  }
+  return true
+}
+
+const handleExceed = () => {
+  ElMessage.warning('最多上传 6 张图片')
+}
+
+const uploadImages = async () => {
+  const files = uploadFiles.value.map(file => file.raw).filter(Boolean)
+  if (files.length === 0) return []
+  const response = await itemStore.uploadImages(files)
+  if (!response.success) {
+    throw new Error(response.message || '图片上传失败')
+  }
+  return response.data
+}
+
+const removeImage = (index) => {
+  form.value.imageUrls.splice(index, 1)
+}
+
 const handleSubmit = async () => {
   try {
     await formRef.value.validate()
     submitting.value = true
-    const response = await itemStore.updateItem(route.params.id, form.value)
+    const newUrls = await uploadImages()
+    const payload = { ...form.value, imageUrls: [...form.value.imageUrls, ...newUrls] }
+    const response = await itemStore.updateItem(route.params.id, payload)
     if (response.success) {
       ElMessage.success('物品信息更新成功')
       router.push(`/items/${route.params.id}`)
     }
   } catch (error) {
-    ElMessage.error(error.response?.data?.message || '更新失败')
+    ElMessage.error(error.response?.data?.message || error.message || '更新失败')
   } finally {
     submitting.value = false
   }
@@ -138,6 +199,38 @@ onMounted(() => { fetchItem() })
 .reward-field { display: flex; align-items: center; gap: 12px; }
 .reward-label { font-size: 14px; color: var(--gray-600); white-space: nowrap; }
 .reward-unit { font-size: 14px; color: var(--gray-500); }
+.image-section { margin-bottom: 12px; }
+.existing-images {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.image-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.7);
+  padding: 10px;
+  border-radius: var(--radius);
+  border: 1px solid rgba(0,0,0,0.05);
+}
+.image-item img {
+  width: 100%;
+  height: 90px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+}
+.upload-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: var(--gray-500);
+  font-size: 12px;
+}
+.upload-hint { font-size: 12px; color: var(--gray-500); margin-top: 6px; }
 
 .form-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 8px; }
 .submit-btn {
