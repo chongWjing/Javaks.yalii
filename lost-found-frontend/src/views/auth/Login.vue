@@ -70,10 +70,11 @@ const handleLogin = async () => {
 .auth-page {
   min-height: 100vh;
   display: flex;
+  background-image: radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
 }
 .auth-left {
   flex: 1;
-  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #06b6d4 100%);
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -94,69 +95,78 @@ const handleLogin = async () => {
   animation: float 3s ease-in-out infinite;
 }
 .auth-brand h1 {
-  font-size: 36px;
+  font-size: 42px;
   font-weight: 800;
-  margin: 0 0 12px;
-  letter-spacing: 1px;
+  margin: 0 0 16px;
+  letter-spacing: -1px;
 }
 .auth-brand p {
-  font-size: 18px;
-  opacity: 0.85;
+  font-size: 20px;
+  opacity: 0.9;
   margin: 0;
 }
 .floating-shapes { position: absolute; inset: 0; pointer-events: none; }
 .shape {
   position: absolute;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.06);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.02));
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
-.shape-1 { width: 300px; height: 300px; top: -50px; left: -80px; animation: float 6s ease-in-out infinite; }
-.shape-2 { width: 200px; height: 200px; bottom: 50px; right: -40px; animation: float 8s ease-in-out infinite 1s; }
-.shape-3 { width: 120px; height: 120px; top: 40%; left: 20%; animation: float 5s ease-in-out infinite 0.5s; }
+.shape-1 { width: 300px; height: 300px; top: 10%; left: 10%; animation: float 6s ease-in-out infinite; }
+.shape-2 { width: 200px; height: 200px; bottom: 15%; right: 15%; animation: float 8s ease-in-out infinite reverse; }
+.shape-3 { width: 120px; height: 120px; top: 50%; left: 30%; animation: pulse 5s ease-in-out infinite; }
 
 .auth-right {
   width: 480px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: white;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  border-left: 1px solid rgba(255, 255, 255, 0.2);
   padding: 40px;
 }
 .auth-card {
   width: 100%;
-  max-width: 360px;
-  animation: fadeInUp 0.6s var(--ease) 0.2s both;
+  max-width: 380px;
+  animation: slideInLeft 0.6s var(--ease) 0.2s both;
 }
 .auth-card h2 {
-  font-size: 28px;
-  font-weight: 700;
+  font-size: 32px;
+  font-weight: 800;
   color: var(--gray-900);
-  margin: 0 0 8px;
+  margin: 0 0 12px;
+  letter-spacing: -0.5px;
 }
 .auth-subtitle {
   color: var(--gray-500);
-  margin: 0 0 32px;
-  font-size: 15px;
+  margin: 0 0 40px;
+  font-size: 16px;
 }
 .auth-btn {
   width: 100%;
-  height: 48px !important;
+  height: 52px !important;
   font-size: 16px !important;
-  border-radius: var(--radius) !important;
-  margin-top: 8px;
+  border-radius: var(--radius-lg) !important;
+  margin-top: 16px;
+  font-weight: 700 !important;
 }
 .auth-footer {
   text-align: center;
-  margin-top: 24px;
-  color: var(--gray-500);
+  margin-top: 32px;
+  color: var(--gray-600);
   font-size: 14px;
 }
 .auth-footer a {
   font-weight: 600;
+  color: var(--primary);
+  margin-left: 4px;
 }
 
 @media (max-width: 768px) {
   .auth-left { display: none; }
-  .auth-right { width: 100%; }
+  .auth-right { width: 100%; background: transparent; }
+  .auth-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); padding: 32px; border-radius: var(--radius-xl); border: 1px solid rgba(255,255,255,0.5); }
 }
 </style>
