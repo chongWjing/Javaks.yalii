@@ -98,7 +98,14 @@
       "Bash(/c/Program Files/MySQL/bin/mysql.exe *)",
       "Bash(/d/MySQL/bin/mysql.exe *)",
       "Bash(mvn clean *)",
-      "Bash(\"/c/Users/W2774/AppData/Roaming/JetBrains/IntelliJIdea2025.3/plugins/maven/lib/maven3/bin/mvn.cmd\" clean *)"
+      "Bash(\"/c/Users/W2774/AppData/Roaming/JetBrains/IntelliJIdea2025.3/plugins/maven/lib/maven3/bin/mvn.cmd\" clean *)",
+      "Bash(git status *)",
+      "Bash(git push *)",
+      "Bash(git remote *)",
+      "Bash(gh repo *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git ls-remote *)"
     ]
   }
 }
