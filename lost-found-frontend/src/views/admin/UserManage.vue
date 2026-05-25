@@ -43,6 +43,16 @@
         </el-table-column>
       </el-table>
     </div>
+    <div v-if="users.length > 0" class="pagination-wrapper">
+      <el-pagination
+        v-model:current-page="currentPage"
+        v-model:page-size="pageSize"
+        :page-sizes="[10, 20, 50]"
+        :total="users.length"
+        layout="total, sizes, prev, pager, next"
+        background
+      />
+    </div>
 
     <el-dialog v-model="showEditDialog" title="编辑用户" width="500px" :close-on-click-modal="false">
       <el-form :model="editForm" :rules="editRules" ref="editFormRef" label-width="80px">
@@ -80,6 +90,8 @@ import api from '../../services/api'
 
 const users = ref([])
 const loading = ref(false)
+const currentPage = ref(1)
+const pageSize = ref(10)
 const showEditDialog = ref(false)
 const updating = ref(false)
 const editFormRef = ref(null)
@@ -184,4 +196,13 @@ onMounted(() => { fetchUsers() })
 }
 .username-text { font-weight: 600; color: var(--gray-800); }
 .action-btn { display: inline-flex !important; align-items: center; gap: 4px; }
+.pagination-wrapper {
+  margin-top: 24px;
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+}
 </style>

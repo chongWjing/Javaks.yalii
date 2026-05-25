@@ -39,6 +39,17 @@
       </div>
       <p>暂无通知消息</p>
     </div>
+
+    <div v-if="notifications.length > 0" class="pagination-wrapper">
+      <el-pagination
+        v-model:current-page="currentPage"
+        v-model:page-size="pageSize"
+        :page-sizes="[10, 20, 50]"
+        :total="notifications.length"
+        layout="total, sizes, prev, pager, next"
+        background
+      />
+    </div>
   </div>
 </template>
 
@@ -51,6 +62,8 @@ import api from '../../services/api'
 const authStore = useAuthStore()
 const notifications = ref([])
 const markingAll = ref(false)
+const currentPage = ref(1)
+const pageSize = ref(10)
 
 const formatDate = (d) => d ? new Date(d).toLocaleString('zh-CN') : ''
 
@@ -134,4 +147,14 @@ onMounted(() => { fetchNotifications() })
 }
 .empty-icon { color: var(--gray-300); margin-bottom: 16px; }
 .empty-state p { font-size: 16px; color: var(--gray-500); margin: 0; }
+
+.pagination-wrapper {
+  margin-top: 24px;
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+}
 </style>

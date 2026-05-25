@@ -1,2 +1,17 @@
-# 项目排除路径
-/lost-found-api/target/
+﻿# Java
+*.class
+*.jar
+*.war
+target/
+.idea/
+*.iml
+
+# Node
+node_modules/
+dist/
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
