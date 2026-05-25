@@ -17,10 +17,12 @@
 
 <style scoped>
 .app-footer {
-  background: rgba(15, 23, 42, 0.95);
-  backdrop-filter: blur(10px);
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-top: 1px solid rgba(255, 255, 255, 0.05);
   margin-top: auto;
+  box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.1);
 }
 .footer-inner {
   max-width: 1400px;
@@ -36,31 +38,35 @@
   gap: 8px;
 }
 .footer-icon {
-  font-size: 18px;
-  filter: drop-shadow(0 0 6px rgba(99, 102, 241, 0.4));
+  font-size: 20px;
+  filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.6));
 }
 .footer-brand {
   background: linear-gradient(135deg, #818cf8, #6ee7b7);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
 }
 .footer-copy {
-  color: var(--gray-500);
+  color: var(--gray-400);
   font-size: 13px;
+  letter-spacing: 0.5px;
 }
 .footer-right {
   display: flex;
   align-items: center;
 }
 .footer-version {
-  color: var(--gray-600);
+  color: var(--gray-300);
   font-size: 12px;
-  padding: 4px 10px;
-  background: rgba(255, 255, 255, 0.05);
+  font-weight: 600;
+  padding: 4px 12px;
+  background: rgba(255, 255, 255, 0.08);
   border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
 @media (max-width: 768px) {

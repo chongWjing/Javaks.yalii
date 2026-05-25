@@ -96,20 +96,30 @@ onMounted(() => { fetchClaims() })
 
 <style scoped>
 .claims-container { padding: 32px; max-width: 1100px; margin: 0 auto; animation: fadeIn 0.4s var(--ease); }
-.page-header { margin-bottom: 24px; }
-.page-header h2 { font-size: 28px; font-weight: 700; color: var(--gray-900); margin: 0 0 4px; }
-.page-header p { color: var(--gray-500); font-size: 15px; margin: 0; }
-.table-wrapper { background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow); overflow: hidden; }
+.page-header { margin-bottom: 32px; }
+.page-header h2 { font-size: 32px; font-weight: 800; color: var(--gray-900); margin: 0 0 8px; letter-spacing: -0.5px; }
+.page-header p { color: var(--gray-500); font-size: 16px; margin: 0; }
+.table-wrapper {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
 .item-name { font-weight: 600; color: var(--gray-800); }
 .pending-text { color: var(--gray-400); font-style: italic; }
-.action-btn { display: inline-flex !important; align-items: center; gap: 4px; }
+.action-btn { display: inline-flex !important; align-items: center; gap: 4px; border-radius: var(--radius-sm) !important; font-weight: 600 !important; }
+.action-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2); }
 .pagination-wrapper {
-  margin-top: 24px;
+  margin-top: 32px;
   display: flex;
   justify-content: center;
-  padding: 20px;
-  background: white;
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow);
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.03);
 }
 </style>
